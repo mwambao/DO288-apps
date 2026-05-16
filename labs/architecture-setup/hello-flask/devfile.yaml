@@ -69,7 +69,7 @@ components:
       buildContext: .
       rootRequired: false
       uri: docker/Dockerfile
-    imageName: registry.ocp4.example.com:8443/developer/hello-flask
+    imageName: default-route-openshift-image-registry.apps-crc.testing/default/hello-flask
   name: build
 
 - kubernetes:
