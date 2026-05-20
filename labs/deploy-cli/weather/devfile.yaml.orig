@@ -6,8 +6,7 @@ commands:
 - apply:
     component: deploy
     group:
-      isDefault: true
-      kind: deploy
+      <CHANGE_ME>
   id: deployk8s
 
 components:
@@ -17,7 +16,7 @@ components:
       buildContext: .
       rootRequired: false
       uri: docker/Dockerfile
-    imageName: quay.io/redhattraining/openshift-dev-deploy-cli-weather:1.0
+    imageName: registry.ocp4.example.com:8443/redhattraining/openshift-dev-deploy-cli-weather:1.0
   name: build
 
 - kubernetes:
@@ -41,7 +40,7 @@ components:
     env:
     - name: DEBUG_PORT
       value: "5858"
-    image: registry.access.redhat.com/ubi8/python-39:latest
+    image: registry.ocp4.example.com:8443/ubi8/python-39:latest
     mountSources: true
   name: py
 
