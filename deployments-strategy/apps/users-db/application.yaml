@@ -52,6 +52,13 @@ items:
         uri: https://github.com/mwambao/DO288-apps
       type: Git
     strategy:
+      type: Recreate
+      recreateParams:
+        post:
+          failurePolicy: Abort
+          execNewPod:
+            command: ["/post-deploy/import.sql"]
+            containerName: users-db
       dockerStrategy:
         from:
           kind: ImageStreamTag
