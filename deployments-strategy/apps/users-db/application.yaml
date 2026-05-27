@@ -1,0 +1,110 @@
+apiVersion: v1
+items:
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: users-db
+      app.kubernetes.io/component: users-db
+      app.kubernetes.io/instance: users-db
+    name: users-db
+  spec:
+    lookupPolicy:
+      local: false
+  status:
+    dockerImageRepository: ""
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: users-db
+      app.kubernetes.io/component: users-db
+      app.kubernetes.io/instance: users-db
+    name: users-db
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: users-db:latest
+    postCommit: {}
+    resources: {}
+    source:
+      contextDir: deployments-strategy/apps/users-db
+      git:
+        uri: https://github.com/mwambao/DO288-apps
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: DockerImage
+          name: registry.ocp4.example.com:8443/rhel8/mysql-80
+      type: Docker
+    triggers:
+    - github:
+        secret: sgb03jPt7Ar9sVtdnT9z
+      type: GitHub
+    - generic:
+        secret: 4sHqUn0jPmJzM4gSmW6o
+      type: Generic
+    - type: ConfigChange
+  status:
+    lastVersion: 0
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: users-db
+      app.kubernetes.io/component: users-db
+      app.kubernetes.io/instance: users-db
+    name: users-db
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: users-db
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        labels:
+          deploymentconfig: users-db
+      spec:
+        containers:
+        - env:
+          - name: MYSQL_DATABASE
+            value: users
+          - name: MYSQL_PASSWORD
+            value: redhat
+          - name: MYSQL_USER
+            value: developer
+          image: users-db:latest
+          name: users-db
+          resources: {}
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - users-db
+        from:
+          kind: ImageStreamTag
+          name: users-db:latest
+      type: ImageChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+kind: List
+metadata: {}
