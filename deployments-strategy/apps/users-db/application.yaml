@@ -1,20 +1,33 @@
 apiVersion: v1
 items:
 - apiVersion: image.openshift.io/v1
-  kind: ImageStream
+  generation: 0
+  image:
+    dockerImageMetadata: null
+    metadata: {}
+  kind: ImageStreamTag
+  lookupPolicy:
+    local: false
   metadata:
     annotations:
       openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/imported-from: users-db:latest
     labels:
       app: users-db
       app.kubernetes.io/component: users-db
       app.kubernetes.io/instance: users-db
-    name: users-db
-  spec:
-    lookupPolicy:
-      local: false
-  status:
-    dockerImageRepository: ""
+    name: users-db:latest
+  tag:
+    annotations: null
+    from:
+      kind: DockerImage
+      name: users-db:latest
+    generation: null
+    importPolicy:
+      importMode: Legacy
+    name: latest
+    referencePolicy:
+      type: ""
 - apiVersion: build.openshift.io/v1
   kind: BuildConfig
   metadata:
@@ -41,17 +54,19 @@ items:
     strategy:
       dockerStrategy:
         from:
-          kind: DockerImage
-          name: registry.ocp4.example.com:8443/rhel8/mysql-80
+          kind: ImageStreamTag
+          name: rhel8-mysql-80:latest
       type: Docker
     triggers:
     - github:
-        secret: sgb03jPt7Ar9sVtdnT9z
+        secret: xZln42wpT1TgUjSP37hI
       type: GitHub
     - generic:
-        secret: 4sHqUn0jPmJzM4gSmW6o
+        secret: gbVHRPq8UoNacfQMYyXY
       type: Generic
     - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
   status:
     lastVersion: 0
 - apiVersion: apps.openshift.io/v1
@@ -87,6 +102,9 @@ items:
             value: developer
           image: users-db:latest
           name: users-db
+          ports:
+          - containerPort: 3306
+            protocol: TCP
           resources: {}
     test: false
     triggers:
@@ -106,5 +124,25 @@ items:
     replicas: 0
     unavailableReplicas: 0
     updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: users-db
+      app.kubernetes.io/component: users-db
+      app.kubernetes.io/instance: users-db
+    name: users-db
+  spec:
+    ports:
+    - name: 3306-tcp
+      port: 3306
+      protocol: TCP
+      targetPort: 3306
+    selector:
+      deploymentconfig: users-db
+  status:
+    loadBalancer: {}
 kind: List
 metadata: {}
