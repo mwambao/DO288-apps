@@ -52,17 +52,10 @@ items:
         uri: https://github.com/mwambao/DO288-apps
       type: Git
     strategy:
-      type: Recreate
-      recreateParams:
-        post:
-          failurePolicy: Abort
-          execNewPod:
-            command: ["/post-deploy/import.sql"]
-            containerName: users-db
       dockerStrategy:
         from:
           kind: ImageStreamTag
-          name: rhel8-mysql-80:latest
+          name: mysql-80:latest
       type: Docker
     triggers:
     - github:
@@ -91,7 +84,13 @@ items:
     selector:
       deploymentconfig: users-db
     strategy:
-      resources: {}
+      type: Recreate
+      recreateParams:
+        post:
+          failurePolicy: Abort
+          execNewPod:
+            command: ["/post-deploy/import.sh"]
+            containerName: users-db
     template:
       metadata:
         annotations:

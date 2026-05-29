@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-db
+spec:
+  serviceName: mysql-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-db
+  template:
+    metadata:
+      labels:
+        app: mysql-db
+    spec:
+      containers:
+        - name: mysql-db
+          image: docker.io/library/mysql:8.0
+          env:
+            - name: MYSQL_USER
+              value: myuser
+            - name: MYSQL_PASSWORD
+              value: mypassword
+            - name: MYSQL_DATABASE
+              value: sampledb
+            - name: MYSQL_ROOT_PASSWORD
+              value: rootpass
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-db-pvc
+              mountPath: /var/lib/mysql
+              subPath: mysql-db
+            - name: init-db-volume
+              mountPath: /tmp/init-db
+      volumes:
+        - name: init-db-volume
+          configMap:
+            name: init-db-cm
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-db-pvc
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: crc-csi-hostpath-provisioner
+        resources:
+          requests:
+            storage: 100Mi
