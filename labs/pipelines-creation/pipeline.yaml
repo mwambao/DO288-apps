@@ -24,8 +24,8 @@ spec:
     - name: fetch-repository
       taskRef:
         name: git-clone
-        kind: ClusterTask
-        apiVersion: tekton.dev/v1beta1
+        kind: Task
+        apiVersion: tekton.dev/v1
       params:
         - name: url
           value: $(params.GIT_REPO)
@@ -44,8 +44,8 @@ spec:
     - name: build-image
       taskRef: 
         name: buildah
-        kind: ClusterTask
-        apiVersion: tekton.dev/v1beta1 
+        kind: Task
+        apiVersion: tekton.dev/v1 
       params:
         - name: IMAGE
           value: default-route-openshift-image-registry.apps-crc.testing/pipelines-creation/$(params.IMAGE_NAME):latest
