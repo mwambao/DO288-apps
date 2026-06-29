@@ -5,5 +5,5 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: crc-csi-hostpath-provisioner
+  storageClassName: nfs-storage
   volumeMode: Filesystem

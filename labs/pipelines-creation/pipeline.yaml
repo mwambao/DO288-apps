@@ -12,7 +12,7 @@ spec:
       default: "exchange"
     - name: GIT_REPO
       type: string
-      default: "https://git.ocp4.example.com/developer/DO288-apps"
+      default: "https://github.com/mwambao/DO288-apps"
     - name: GIT_REVISION
       type: string
       default: "master"
@@ -21,4 +21,44 @@ spec:
       default: "apps/pipelines-creation/exchange"
 
   tasks:
-    - name: TODO
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+        apiVersion: tekton.dev/v1beta1
+      params:
+        - name: url
+          value: $(params.GIT_REPO)
+        - name: revision
+          value: $(params.GIT_REVISION)
+        - name: subdirectory
+          value: ""
+        - name: deleteExesting
+          value: "true"
+        - name: sslVerify
+          value: "false"
+      workspaces:
+        - name: output
+          workspace: shared
+
+    - name: build-image
+      taskRef: 
+        name: buildah
+        kind: ClusterTask
+        apiVersion: tekton.dev/v1beta1 
+      params:
+        - name: IMAGE
+          value: default-route-openshift-image-registry.apps-crc.testing/pipelines-creation/$(params.IMAGE_NAME):latest
+        - name: DOCKERFILE
+          value: Containerfile
+        - name: CONTEXT
+          value: $(params.APP_PATH)
+        - name: TLSVERIFY
+          value: "false"
+        - name: SKIP_PUSH
+          value: "true"
+      runAfter:
+       - fetch-repository
+      workspaces:
+       - name: source
+         workspace: shared   
